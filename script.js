@@ -63,6 +63,12 @@ const gameBoard = (() => {
 })();
 
 const ai = (() => {
+  // const minimax = (depth, board) => {
+  //   if (depth === 0 || !board.includes(null)) {
+
+  //   }
+  // }
+
   const play = difficulty => {
     let board = gameBoard.getBoard();
     let openSpots = board.map((val, index) => val === null ? index : val).filter(e => typeof e === 'number')
@@ -77,7 +83,6 @@ const ai = (() => {
           }
         }
       }
-      console.log('in ai func >>>');
       gameBoard.setMarker(clickEvt, game.getCurrentPlayer())
     }
   }
@@ -120,14 +125,14 @@ const displayController = (() => {
     const players = [player1, player2]
     
     for (let player of players) {
-      const nameDiv = document.createElement('input');
-      nameDiv.setAttribute('type', 'text');
-      nameDiv.classList.add('playerName');
-      nameDiv.value = player.getName();
-      nameDiv.addEventListener('change', e => {
+      const nameInput = document.createElement('input');
+      nameInput.setAttribute('type', 'text');
+      nameInput.classList.add('playerName');
+      nameInput.value = player.getName();
+      nameInput.addEventListener('change', e => {
         player.setName(e.target.value)
       });
-      namesWrapper.appendChild(nameDiv);
+      namesWrapper.appendChild(nameInput);
     }
     if (body.contains(body.querySelector('.namesWrapper'))) {
       body.querySelector('.namesWrapper').replaceWith(namesWrapper);
@@ -163,14 +168,30 @@ const displayController = (() => {
     dropdownBtn.textContent = 'A.I.';
     const dropdownContent = document.createElement('div')
     dropdownContent.classList.add('dropdown-content');
+    dropdownContent.addEventListener('click', e => {
+      console.log(e.target);
+      if (e.target.matches('.dropdown-option')) {
+        body.querySelector('.dropdown-content').classList.toggle('show')
+        body.querySelector('.ai-dropdown button').classList.toggle('active')
+      }
+    })
 
-    const selections = ['Easy', 'Medium', 'Impossible'];
+    const selections = ['Easy', 'Medium', 'Impossible', 'Multiplayer'];
     for (let selection of selections) {
       let option = document.createElement('a');
+      if (selection == 'Medium' || selection == 'Impossible') {
+        option.style.pointerEvents = 'none'
+      }
       option.setAttribute('href', '#');
       option.classList.add('dropdown-option')
       option.textContent = selection;
-      option.addEventListener('click', game.setAi)
+      console.log({selection, result: selection == 'Multiplayer'});
+      if (selection == 'Multiplayer') {
+        option.addEventListener('click', game.unsetAi)
+      }
+      else {
+        option.addEventListener('click', game.setAi)
+      }
       dropdownContent.appendChild(option);
     }
     aiSelect.appendChild(dropdownBtn);
@@ -178,17 +199,26 @@ const displayController = (() => {
     document.querySelectorAll('.playerName')[1].insertAdjacentElement('afterend', aiSelect)
   }
 
+  const renderResetBtn = () => {
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = 'Reset Game';
+    resetBtn.classList.add('resetBtn');
+    resetBtn.addEventListener('click', game.resetGame)
+    body.querySelector('.ai-dropdown').parentElement.insertAdjacentElement('afterend', resetBtn)
+  }
+
   return {
     renderBoard,
     renderResult,
     renderPlayerNames,
     renderAiSelect,
+    renderResetBtn,
   }
 })();
 
-const game = ((player1, player2) => {
-  const _p1 = player1;
-  let _p2 = player2;
+const game = (() => {
+  const _p1 = Player('Player 1', 'X');
+  const _p2 = Player('Player 2', 'O');
 
   let _currentPlayer = _p1;
 
@@ -201,11 +231,17 @@ const game = ((player1, player2) => {
   }
 
   const setAi = click => {
-    _p2 = Player('Computer', 'O')
     _p2.difficulty = click.target.innerText;
-    displayController.renderPlayerNames(_p1, _p2);
-    displayController.renderAiSelect()
-    console.log({click, _p2});
+    _p2.setName('Computer');
+    displayController.renderPlayerNames(_p1,_p2);
+    displayController.renderAiSelect();
+  }
+
+  const unsetAi = () => {
+    delete _p2.difficulty;
+    _p2.setName('Player 2');
+    displayController.renderPlayerNames(_p1,_p2);
+    displayController.renderAiSelect();
   }
 
   const nextRound = () => displayController.renderBoard(gameBoard.getBoard());
@@ -213,8 +249,9 @@ const game = ((player1, player2) => {
   // Initialize game 
   const startGame = () => {
     displayController.renderPlayerNames(_p1, _p2);
-    displayController.renderAiSelect()
+    displayController.renderAiSelect();
     nextRound();
+    displayController.renderResetBtn();
     
   }
 
@@ -287,6 +324,7 @@ const game = ((player1, player2) => {
     nextRound,
     nextPlayer,
     setAi,
+    unsetAi,
   }
 })(testP1, testP2);
 

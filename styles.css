@@ -92,12 +92,14 @@ body {
 .playerName {
   background-color: #333333;
   border: 1px solid #333333;
-  border-radius: 5px;
   color: #d7ba66;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 2rem;
+  font-size: 1.5rem;
   max-width: 200px;
+  height: 45px;
+  line-height: 45px;
   text-align: center;
+  transition: border 0.1s;
 }
 
 .playerName:hover {
@@ -117,13 +119,15 @@ body {
   border: 2px solid #111 !important;
 }
 
-.ai-dropdown button {
+.ai-dropdown button,
+.resetBtn {
   background-color: #333333;
   color: #d7ba66;
   border: none;
   padding: 5px;
   text-align: center;
   cursor: pointer;
+  transition: 0.1s;
 }
 
 .ai-dropdown button:hover {
@@ -131,12 +135,24 @@ body {
   box-shadow: 1px 1px 5px #000;
 }
 
+.resetBtn {
+  order: 1;
+}
+
+.resetBtn:hover {
+  background-color: #444;
+  color: #d8b123;
+}
+
+.resetBtn:active {
+  background-color: #111;
+}
+
 .dropdown-content {
   display: none;
   position: absolute;
   flex-direction: column;
   width: 100%;
-  font-size: 1.1rem;
   box-shadow: 1px 1px 5px #000;
   background-color: #333;
   margin-top: 5px;
